@@ -1,3 +1,4 @@
+/*jshint loopfunc:true */
 var map;
 var markers = [];
 
@@ -70,18 +71,23 @@ function createMap() {
       id: i
     });
 
-
     markers.push(marker);
 
     marker.addListener("click", function() {
       populateInfoWindow(this, Infowindow);
     });
+
+    // marker.addListener("click", addinfo())
+
     bounds.extend(markers[i].position);
   }
   // Extend the boundaries of the map for each marker
   map.fitBounds(bounds);
 };
 
+// function addinfo() {
+//   populateInfoWindow(this, Infowindow);
+// };
 
 // function to populate marker widnow with title and wikipedia artical
 
