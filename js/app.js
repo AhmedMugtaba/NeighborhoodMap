@@ -41,16 +41,18 @@ function Location(data) {
   this.wiki = data.wiki;
 }
 
+
+
 // function to create a map and add markers
 
 function createMap() {
-  var latlng = new google.maps.LatLng(-34.397, 150.644);
-  var input = {
-    zoom: 25,
+  var latlng = new google.maps.LatLng(15.615997, 32.6859455);
+  var sudan = {
+    zoom: 20,
     center: latlng,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
-  var map = new google.maps.Map(document.getElementById("map"), input);
+  var map = new google.maps.Map(document.getElementById("map"), sudan);
   var Infowindow = new google.maps.InfoWindow();
   var bounds = new google.maps.LatLngBounds();
 
@@ -68,6 +70,7 @@ function createMap() {
       id: i
     });
 
+
     markers.push(marker);
 
     marker.addListener("click", function() {
@@ -77,7 +80,8 @@ function createMap() {
   }
   // Extend the boundaries of the map for each marker
   map.fitBounds(bounds);
-}
+};
+
 
 // function to populate marker widnow with title and wikipedia artical
 
