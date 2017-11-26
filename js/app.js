@@ -1,6 +1,7 @@
 /*jshint loopfunc:true */
 var map;
 var markers = [];
+var marker;
 
 // array of locations
 
@@ -8,7 +9,7 @@ var locations = [
   {
     name: "The Forgotten Pyramids",
     latLng: { lat: 16.9381826, lng: 33.7488091 },
-    wiki: "Meroe"
+    wiki: "Nubian pyramids"
   },
 
   {
@@ -20,7 +21,7 @@ var locations = [
   {
     name: "Longest River in the World",
     latLng: { lat: 15.615997, lng: 32.6859455 },
-    wiki: "Nile River"
+    wiki: "Nile"
   },
   {
     name: "Dinder National Park",
@@ -40,6 +41,7 @@ function Location(data) {
   this.name = data.name;
   this.latLng = data.latLng;
   this.wiki = data.wiki;
+  this.marker = marker;
 }
 
 // function to create a map and add markers
@@ -52,27 +54,37 @@ function createMap() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   var map = new google.maps.Map(document.getElementById("map"), sudan);
+
+
   var Infowindow = new google.maps.InfoWindow();
-  var bounds = new google.maps.LatLngBounds();
+  var bounds = new google.maps.LatLngBounds(); 
+
 
   for (var i = 0; i < locations.length; i++) {
     var position = locations[i].latLng;
     var title = locations[i].name;
     var wiki = locations[i].wiki;
     // Create a marker per point
+
     var marker = new google.maps.Marker({
       map: map,
       position: position,
       title: title,
       wiki: wiki,
-      animation: google.maps.Animation.DROP,
-      id: i
+      animation: google.maps.Animation.DROP
     });
 
     markers.push(marker);
 
-    marker.addListener("click", function() {
+    // google.maps.event.addListener(marker, 'click', function(){
+    //   marker.setAnimation(google.maps.Animation.BOUNCE);
+    // })
+
+      marker.addListener("click", function() {
       populateInfoWindow(this, Infowindow);
+      // TODO: toggleBounce(currentMarker);
+      toggleBounce(this);
+
     });
 
     bounds.extend(markers[i].position);
@@ -82,9 +94,15 @@ function createMap() {
   map.fitBounds(bounds);
 }
 
+
+function mapError () {
+  alert('Oops Somthing Went Wrong !');
+};
+
 // function to populate marker widnow with title and wikipedia artical
 
 function populateInfoWindow(marker, infowindow) {
+
   sourceURL = "https://en.wikipedia.org/wiki/" + marker.wiki;
   urls =
     "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=" +
@@ -101,14 +119,10 @@ function populateInfoWindow(marker, infowindow) {
       url: urls
     })
       .done(function(response) {
-        infowindow.setContent(
-          "<div>" +
-            marker.title +
-            "</div>" +
-            "<a href=" +
-            sourceURL +
-            ' target="_blank">Wikipedia link</a>'
-        );
+
+        var extract = response.query.pages[Object.keys(response.query.pages)[0]].extract;
+
+        infowindow.setContent('<div>'+ '<h4>'+ marker.title + '</h4>' + extract + '<br>' + '<a href=' + sourceURL + '>Wikipedia</a>' +'</div>');
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         infowindow.setContent("<div>" + "Something went wrong!" + "</div>");
@@ -116,15 +130,27 @@ function populateInfoWindow(marker, infowindow) {
 
     infowindow.addListener("closeclick", function() {
       infowindow.setMarker = null;
+
+    // marker.addListener('click', toggleBounce);
     });
   }
 }
 
-google.maps.event.addDomListener(window, "load", createMap);
+function toggleBounce(marker) {
+  if (marker.getAnimation() !== null) {
+    marker.setAnimation(null);
+  } else {
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function() {
+    marker.setAnimation(null);
+    }, 1400);
+  }
+}
+
 
 // a viewModel to store data and bind them the view
 
-var viewModel = function() {
+var ViewModel = function() {
   var self = this;
 
   // Creating location array out of the locations data and add individul location to it
@@ -137,6 +163,7 @@ var viewModel = function() {
 
   // emty array to track search on locations
   self.search = ko.observableArray();
+
 
   self.locations.forEach(function(location) {
     self.search.push(location);
@@ -154,13 +181,29 @@ var viewModel = function() {
     self.search.removeAll();
 
     self.locations.forEach(function(location) {
+
+      // location.marker.setVisible(false);
+
+      var index = markers.findIndex(function(marker) {
+        return marker.title === location.name; 
+      });
+
+
       if (location.name.toLowerCase().indexOf(searchInput) !== -1) {
         self.search.push(location);
+
+        markers[index].setVisible(true);
+
+      } else {
+        markers[index].setVisible(false);
       }
+
     });
   };
 };
 
+
+
 $(document).ready(function() {
-  ko.applyBindings(new viewModel());
+  ko.applyBindings(new ViewModel());
 });

@@ -22,14 +22,14 @@ input {
 	position: relative;
 	}
 
-#map {
-  height: 100%;
-  bottom:0px;
-  left: 362px;
-  position: absolute;
-  right: 0px;
-  margin:0;
-  padding-top: 20px;
+#map { 
+	height: 100%;
+	bottom:0px;
+	left: 362px;
+	position: absolute;
+	right: 0px;
+	margin:0;
+	padding-top: 20px;
 }
 
 
