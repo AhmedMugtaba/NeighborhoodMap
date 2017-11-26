@@ -55,10 +55,8 @@ function createMap() {
   };
   var map = new google.maps.Map(document.getElementById("map"), sudan);
 
-
   var Infowindow = new google.maps.InfoWindow();
-  var bounds = new google.maps.LatLngBounds(); 
-
+  var bounds = new google.maps.LatLngBounds();
 
   for (var i = 0; i < locations.length; i++) {
     var position = locations[i].latLng;
@@ -80,11 +78,10 @@ function createMap() {
     //   marker.setAnimation(google.maps.Animation.BOUNCE);
     // })
 
-      marker.addListener("click", function() {
+    marker.addListener("click", function() {
       populateInfoWindow(this, Infowindow);
       // TODO: toggleBounce(currentMarker);
       toggleBounce(this);
-
     });
 
     bounds.extend(markers[i].position);
@@ -94,15 +91,13 @@ function createMap() {
   map.fitBounds(bounds);
 }
 
-
-function mapError () {
-  alert('Oops Somthing Went Wrong !');
-};
+function mapError() {
+  alert("Oops Somthing Went Wrong !");
+}
 
 // function to populate marker widnow with title and wikipedia artical
 
 function populateInfoWindow(marker, infowindow) {
-
   sourceURL = "https://en.wikipedia.org/wiki/" + marker.wiki;
   urls =
     "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=" +
@@ -119,10 +114,21 @@ function populateInfoWindow(marker, infowindow) {
       url: urls
     })
       .done(function(response) {
+        var extract =
+          response.query.pages[Object.keys(response.query.pages)[0]].extract;
 
-        var extract = response.query.pages[Object.keys(response.query.pages)[0]].extract;
-
-        infowindow.setContent('<div>'+ '<h4>'+ marker.title + '</h4>' + extract + '<br>' + '<a href=' + sourceURL + '>Wikipedia</a>' +'</div>');
+        infowindow.setContent(
+          "<div>" +
+            "<h4>" +
+            marker.title +
+            "</h4>" +
+            extract +
+            "<br>" +
+            "<a href=" +
+            sourceURL +
+            ">Wikipedia</a>" +
+            "</div>"
+        );
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         infowindow.setContent("<div>" + "Something went wrong!" + "</div>");
@@ -131,7 +137,7 @@ function populateInfoWindow(marker, infowindow) {
     infowindow.addListener("closeclick", function() {
       infowindow.setMarker = null;
 
-    // marker.addListener('click', toggleBounce);
+      // marker.addListener('click', toggleBounce);
     });
   }
 }
@@ -142,11 +148,10 @@ function toggleBounce(marker) {
   } else {
     marker.setAnimation(google.maps.Animation.BOUNCE);
     setTimeout(function() {
-    marker.setAnimation(null);
+      marker.setAnimation(null);
     }, 1400);
   }
 }
-
 
 // a viewModel to store data and bind them the view
 
@@ -164,7 +169,6 @@ var ViewModel = function() {
   // emty array to track search on locations
   self.search = ko.observableArray();
 
-
   self.locations.forEach(function(location) {
     self.search.push(location);
   });
@@ -181,28 +185,22 @@ var ViewModel = function() {
     self.search.removeAll();
 
     self.locations.forEach(function(location) {
-
       // location.marker.setVisible(false);
 
       var index = markers.findIndex(function(marker) {
-        return marker.title === location.name; 
+        return marker.title === location.name;
       });
-
 
       if (location.name.toLowerCase().indexOf(searchInput) !== -1) {
         self.search.push(location);
 
         markers[index].setVisible(true);
-
       } else {
         markers[index].setVisible(false);
       }
-
     });
   };
 };
-
-
 
 $(document).ready(function() {
   ko.applyBindings(new ViewModel());
