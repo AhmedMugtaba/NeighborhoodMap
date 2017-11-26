@@ -24,7 +24,7 @@
             <h1>Forgotten Places</h1>
             <input type="search" placeholder="search..." data-bind="textInput: userInput, event: {keyup: filterLocations}">
             <ul id="location-list" data-bind="foreach: search">
-                <li data-bind="text: name"></li>
+                <li data-bind="text: name, click: $parent.setList"></li>
             </ul>
         </div>
         <div id="map"></div>

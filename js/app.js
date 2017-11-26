@@ -2,7 +2,7 @@
 var map;
 var markers = [];
 var marker;
-
+var infowindow;
 // array of locations
 
 var locations = [
@@ -41,7 +41,7 @@ function Location(data) {
   this.name = data.name;
   this.latLng = data.latLng;
   this.wiki = data.wiki;
-  this.marker = marker;
+  this.marker = data.marker;
 }
 
 // function to create a map and add markers
@@ -190,6 +190,10 @@ var ViewModel = function() {
       var index = markers.findIndex(function(marker) {
         return marker.title === location.name;
       });
+
+      self.setList = function (index) {
+        populateInfoWindow(markers[index], infowindow)
+      }
 
       if (location.name.toLowerCase().indexOf(searchInput) !== -1) {
         self.search.push(location);
