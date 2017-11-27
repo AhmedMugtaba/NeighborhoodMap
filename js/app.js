@@ -3,6 +3,7 @@ var map;
 var markers = [];
 var marker;
 var infowindow;
+
 // array of locations
 
 var locations = [
@@ -53,9 +54,17 @@ function createMap() {
     center: latlng,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
-  var map = new google.maps.Map(document.getElementById("map"), sudan);
+   map = new google.maps.Map(document.getElementById("map"), sudan);
 
-  var Infowindow = new google.maps.InfoWindow();
+
+   // making the Map responsive 
+   google.maps.event.addDomListener(window, "resize", function() {
+   var center = map.getCenter();
+   google.maps.event.trigger(map, "resize");
+   map.setCenter(center); 
+});
+
+   infowindow = new google.maps.InfoWindow();
   var bounds = new google.maps.LatLngBounds();
 
   for (var i = 0; i < locations.length; i++) {
@@ -72,15 +81,13 @@ function createMap() {
       animation: google.maps.Animation.DROP
     });
 
+    
     markers.push(marker);
 
-    // google.maps.event.addListener(marker, 'click', function(){
-    //   marker.setAnimation(google.maps.Animation.BOUNCE);
-    // })
+    locations[i].marker = marker;
 
     marker.addListener("click", function() {
-      populateInfoWindow(this, Infowindow);
-      // TODO: toggleBounce(currentMarker);
+      populateInfoWindow(this);
       toggleBounce(this);
     });
 
@@ -89,7 +96,12 @@ function createMap() {
 
   // Extend the boundaries of the map for each marker
   map.fitBounds(bounds);
+
+ko.applyBindings(new ViewModel());
+
 }
+
+// function to handle Map loading Error
 
 function mapError() {
   alert("Oops Somthing Went Wrong !");
@@ -97,7 +109,7 @@ function mapError() {
 
 // function to populate marker widnow with title and wikipedia artical
 
-function populateInfoWindow(marker, infowindow) {
+function populateInfoWindow(marker) {
   sourceURL = "https://en.wikipedia.org/wiki/" + marker.wiki;
   urls =
     "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=" +
@@ -136,8 +148,6 @@ function populateInfoWindow(marker, infowindow) {
 
     infowindow.addListener("closeclick", function() {
       infowindow.setMarker = null;
-
-      // marker.addListener('click', toggleBounce);
     });
   }
 }
@@ -166,12 +176,17 @@ var ViewModel = function() {
     self.locations.push(new Location(location));
   });
 
+
   // emty array to track search on locations
   self.search = ko.observableArray();
 
   self.locations.forEach(function(location) {
     self.search.push(location);
   });
+
+  self.setList = function (location){
+    google.maps.event.trigger(location.marker, 'click');
+    }
 
   // observable to store userInput
 
@@ -182,19 +197,17 @@ var ViewModel = function() {
   self.filterLocations = function() {
     var searchInput = self.userInput().toLowerCase();
 
+    infowindow.close();
+
     self.search.removeAll();
 
     self.locations.forEach(function(location) {
-      // location.marker.setVisible(false);
-
+   
       var index = markers.findIndex(function(marker) {
         return marker.title === location.name;
       });
 
-      self.setList = function (index) {
-        populateInfoWindow(markers[index], infowindow)
-      }
-
+      
       if (location.name.toLowerCase().indexOf(searchInput) !== -1) {
         self.search.push(location);
 
@@ -206,6 +219,4 @@ var ViewModel = function() {
   };
 };
 
-$(document).ready(function() {
-  ko.applyBindings(new ViewModel());
-});
+
