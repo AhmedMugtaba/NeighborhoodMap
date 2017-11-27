@@ -152,6 +152,16 @@ function populateInfoWindow(marker) {
   }
 }
 
+function toggleList() {
+    var x = $(".search-box")[0];
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+
+
 function toggleBounce(marker) {
   if (marker.getAnimation() !== null) {
     marker.setAnimation(null);
