@@ -186,7 +186,7 @@ var ViewModel = function() {
 
   self.setList = function (location){
     google.maps.event.trigger(location.marker, 'click');
-    }
+    };
 
   // observable to store userInput
 
